@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <WayForPay_Payment>
+            <version>1.0.0</version>
+        </WayForPay_Payment>
+    </modules>
+
+    <global>
+        <blocks>
+            <wayforpay_payment>
+                <class>WayForPay_Payment_Block</class>
+            </wayforpay_payment>
+        </blocks>
+        <models>
+            <wayforpay_payment>
+                <class>WayForPay_Payment_Model</class>
+            </wayforpay_payment>
+        </models>
+        <helpers>
+            <wayforpay_payment>
+                <class>WayForPay_Payment_Helper</class>
+            </wayforpay_payment>
+        </helpers>
+        <payment>
+
+        </payment>
+    </global>
+
+    <frontend>
+        <secure_url>
+            <wayforpay_redirect>/WayForPay/redirect/</wayforpay_redirect>
+            <wayforpay_responce>/WayForPay/response/</wayforpay_responce>
+        </secure_url>
+
+        <routers>
+            <wayforpay_payment>
+                <use>standard</use>
+                <args>
+                    <module>WayForPay_Payment</module>
+                    <frontName>WayForPay</frontName>
+                </args>
+            </wayforpay_payment>
+        </routers>
+
+    </frontend>
+    <default>
+        <payment>
+            <wayforpay_payment>
+                <active>1</active>
+                <model>wayforpay_payment/wayForPay</model>
+                <order_status>pending</order_status>
+                <after_pay_status>complete</after_pay_status>
+                <title>Pay via WayForPay</title>
+                <currency>UAH</currency>
+                <url>https://secure.wayforpay.com/pay</url>
+                <merchant>test_merch_n1</merchant>
+                <secret_key>flk3409refn54t54t*FNJRET</secret_key>
+                <language>RU</language>
+            </wayforpay_payment>
+        </payment>
+    </default>
+</config>
