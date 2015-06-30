@@ -17,6 +17,11 @@ class WayForPay_Payment_Model_Wayforpay extends Mage_Payment_Model_Method_Abstra
         return Mage::getSingleton('checkout/session');
     }
 
+    public function getOrderPlaceRedirectUrl()
+    {
+        return Mage::getUrl('wayforpay_payment/redirect', array('_secure' => true));
+    }
+
     public function getFormFields()
     {
         $order_id = $this->getCheckout()->getLastRealOrderId();

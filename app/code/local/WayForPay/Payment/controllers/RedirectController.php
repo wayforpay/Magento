@@ -31,8 +31,8 @@ class WayForPay_Payment_RedirectController extends Mage_Core_Controller_Front_Ac
      */
     public function successAction() {
         if($this->getRequest()->isPost()) {
-            Mage::getSingleton('ceckout/session')->getQuote()->setIsActive(false)->save();
-            $this->_redirect('ceckout/onepage/success', array('_secure'=>true));
+            Mage::getSingleton('checkout/session')->getQuote()->setIsActive(false)->save();
+            $this->_redirect('checkout/onepage/success', array('_secure'=>true));
         }
         
     }

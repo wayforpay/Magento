@@ -29,8 +29,8 @@
 
     <frontend>
         <secure_url>
-            <wayforpay_redirect>/WayForPay/redirect/</wayforpay_redirect>
-            <wayforpay_responce>/WayForPay/response/</wayforpay_responce>
+            <WayForPay_redirect>/WayForPay/redirect/</WayForPay_redirect>
+            <WayForPay_responce>/WayForPay/response/</WayForPay_responce>
         </secure_url>
 
         <routers>
@@ -42,7 +42,6 @@
                 </args>
             </wayforpay_payment>
         </routers>
-
     </frontend>
     <default>
         <payment>
@@ -57,6 +56,8 @@
                 <merchant>test_merch_n1</merchant>
                 <secret_key>flk3409refn54t54t*FNJRET</secret_key>
                 <language>RU</language>
+                <payment_action>generateForm</payment_action>
+                <allowspecific>0</allowspecific>
             </wayforpay_payment>
         </payment>
     </default>
