@@ -17,6 +17,9 @@ class WayForPay_Payment_Block_Redirect extends Mage_Core_Block_Abstract
             $order->save();
         }
 
+        Mage::helper('wayforpay_payment')->log(
+            "{$data['fields']['orderReference']}: Redirecting to WayForPay payment page:\n" . print_r($data['fields'], true)
+        );
 
         $html = '<form name="WayForPay" id="WayForPayForm" method="post" action="' . $model->getConfigData('url') . '">';
         foreach ($data['fields'] as $name => $value) {

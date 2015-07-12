@@ -42,6 +42,16 @@
                 </args>
             </wayforpay_payment>
         </routers>
+
+        <translate>
+            <modules>
+                <WayForPay_Payment>
+                    <files>
+                        <default>WayForPay_Payment.csv</default>
+                    </files>
+                </WayForPay_Payment>
+            </modules>
+        </translate>
     </frontend>
     <default>
         <payment>
@@ -56,6 +66,7 @@
                 <merchant>test_merch_n1</merchant>
                 <secret_key>flk3409refn54t54t*FNJRET</secret_key>
                 <language>RU</language>
+                <debug>0</debug>
                 <payment_action>generateForm</payment_action>
                 <allowspecific>0</allowspecific>
             </wayforpay_payment>

@@ -43,19 +43,19 @@ class WayForPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
         $hash = array();
         foreach ($keys as $dataKey) {
             if (!isset($option[$dataKey])) {
-                continue;
+                $hash[] = '';
             }
-            if (is_array($option[$dataKey])) {
+            elseif (is_array($option[$dataKey])) {
                 foreach ($option[$dataKey] as $v) {
                     $hash[] = $v;
                 }
             } else {
-                $hash [] = $option[$dataKey];
+                $hash[] = $option[$dataKey];
             }
         }
         $hash = implode(self::SIGNATURE_SEPARATOR, $hash);
 
-        $secret = Mage::getModel('wayforpay_payment/wayforpay')->getConfigData('secret_key');
+        $secret = Mage::getModel('wayforpay_payment/wayForPay')->getConfigData('secret_key');
         return hash_hmac('md5', $hash, $secret);
     }
 
@@ -78,33 +78,20 @@ class WayForPay_Payment_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * @param $order
-     * @return string
-     */
-    public function getAnswerToGateWay($order)
-    {
-        $time = time();
-        $responseToGateway = array(
-            'orderReference' => $order->getId(),
-            'status' => 'accept',
-            'time' => $time
-        );
-        $sign = array();
-        foreach ($responseToGateway as $dataKey => $dataValue) {
-            $sign [] = $dataValue;
-        }
-        $sign = implode(self::SIGNATURE_SEPARATOR, $sign);
-        $sign = hash_hmac('md5', $sign, Mage::getModel('wayforpay_payment/wayforpay')->getConfigData('secret_key'));
-        $responseToGateway['signature'] = $sign;
-
-        return json_encode($responseToGateway);
-    }
-
-    /**
      * @return mixed
      */
     public function getUrl()
     {
         return Mage::getStoreConfig('payment/wayforpay_payment/url');
+    }
+
+    /**
+     * @param $message
+     */
+    public function log($message)
+    {
+        if (Mage::getStoreConfig('payment/wayforpay_payment/debug')) {
+            Mage::log($message, null, 'wayforpay.log');
+        }
     }
 }

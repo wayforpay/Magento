@@ -4,11 +4,9 @@
  * WayForPay payment module
  */
 
-class WayForPay_Payment_Model_Wayforpay extends Mage_Payment_Model_Method_Abstract
+class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstract
 {
-
     protected $_code = 'wayforpay_payment';
-    protected $_formBlockType = 'wayforpay_payment/form';
 
     protected $_canOrder = true;
 
@@ -39,7 +37,7 @@ class WayForPay_Payment_Model_Wayforpay extends Mage_Payment_Model_Method_Abstra
             'amount' => $amount,
             'currency' => 'UAH',
             'serviceUrl' => $this->getConfigData('serviceUrl') ? $this->getConfigData('serviceUrl') : 'http://' . $_SERVER['HTTP_HOST'] . '/WayForPay/response/',
-            'returnUrl' => $this->getConfigData('returnUrl'),
+            'returnUrl' => $this->_getReturnUrl(),
             'language' => $this->getConfigData('language'),
         );
 
@@ -87,6 +85,11 @@ class WayForPay_Payment_Model_Wayforpay extends Mage_Payment_Model_Method_Abstra
         );
 
         return $params;
+    }
+
+    protected function _getReturnUrl()
+    {
+        return Mage::getUrl('WayForPay/redirect/return');
     }
 
     /**
