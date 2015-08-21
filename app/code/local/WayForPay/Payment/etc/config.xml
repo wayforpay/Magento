@@ -51,7 +51,6 @@
                 <order_status>pending</order_status>
                 <after_pay_status>complete</after_pay_status>
                 <title>Pay via WayForPay</title>
-                <currency>UAH</currency>
                 <url>https://secure.wayforpay.com/pay</url>
                 <merchant>test_merch_n1</merchant>
                 <secret_key>flk3409refn54t54t*FNJRET</secret_key>

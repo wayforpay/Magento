@@ -37,17 +37,11 @@ class WayForPay_Payment_Model_Wayforpay extends Mage_Payment_Model_Method_Abstra
             'merchantTransactionSecureType' => 'AUTO',
             'order_desc' => 'Order description',
             'amount' => $amount,
-            'currency' => 'UAH',
+            'currency' => $order->getOrderCurrencyCode(),
             'serviceUrl' => $this->getConfigData('serviceUrl') ? $this->getConfigData('serviceUrl') : 'http://' . $_SERVER['HTTP_HOST'] . '/WayForPay/response/',
             'returnUrl' => $this->getConfigData('returnUrl'),
             'language' => $this->getConfigData('language'),
         );
-
-        //TODO
-        if ($this->getConfigData('currency') != 'UAH') {
-//            $fields['alternativeCurrency'] = $this->getConfigData('currency');
-//            $fields['alternativeAmount'] = $this->getConfigData('currency');
-        }
 
         $cartItems = $order->getAllVisibleItems();
 
