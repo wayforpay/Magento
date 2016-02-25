@@ -10,6 +10,8 @@ class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstra
 
     protected $_canOrder = true;
 
+    protected $_supportedCurrencies = array('RUB', 'EUR', 'USD', 'UAH');
+
     public function getCheckout()
     {
         return Mage::getSingleton('checkout/session');
@@ -20,41 +22,60 @@ class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstra
         return Mage::getUrl('wayforpay_payment/redirect', array('_secure' => true));
     }
 
+    protected function _getCurrentCurrencyCode()
+    {
+        $currentCode = Mage::app()->getStore()->getCurrentCurrencyCode();
+        if (in_array($currentCode, $this->_supportedCurrencies)) {
+            return $currentCode;
+        } else {
+            throw new Zend_Currency_Exception(Mage::helper('wayforpay_payment')->__("Currency $currentCode is not supported by WayForPay"));
+        }
+    }
+
     public function getFormFields()
     {
         $order_id = $this->getCheckout()->getLastRealOrderId();
         $order = Mage::getModel('sales/order')->loadByIncrementId($order_id);
-        $amount = round($order->getGrandTotal(), 2);
+
+        try {
+            // First try to use an order currency, if it's not supported - use base order currency
+            $currentCurrency = $this->_getCurrentCurrencyCode();
+            $grandTotal = round($order->getGrandTotal(), 2);
+            $productPriceField = 'price';
+        } catch (Zend_Currency_Exception $e) {
+            // Try to use an order base currency
+            $currentCurrency = $order->getBaseCurrencyCode();
+            if (!in_array($currentCurrency, $this->_supportedCurrencies)) {
+                // base currency is not supported as well
+                throw new Zend_Currency_Exception(Mage::helper('wayforpay_payment')->__("Base currency $currentCurrency is not supported by WayForPay"));
+            }
+            $grandTotal = round($order->getBaseGrandTotal(), 2);
+            $productPriceField = 'base_price';
+        }
 
         $fields = array(
             'merchantAccount' => $this->getConfigData('merchant'),
             'orderReference' => $order_id,
             'orderDate' => strtotime($order->getCreatedAt()),
-            'merchantAuthType' => 'simpleSignature',
-            'merchantDomainName' => $_SERVER['HTTP_HOST'],
+            'merchantDomainName' => Mage::app()->getRequest()->getHttpHost(),
             'merchantTransactionSecureType' => 'AUTO',
             'order_desc' => 'Order description',
-            'amount' => $amount,
-            'currency' => 'UAH',
-            'serviceUrl' => $this->getConfigData('serviceUrl') ? $this->getConfigData('serviceUrl') : 'http://' . $_SERVER['HTTP_HOST'] . '/WayForPay/response/',
+            'currency' => $currentCurrency,
+            'amount' => $grandTotal,
+            'serviceUrl' => $this->_getServiceUrl(),
             'returnUrl' => $this->_getReturnUrl(),
             'language' => $this->getConfigData('language'),
         );
-
-        //TODO
-        if ($this->getConfigData('currency') != 'UAH') {
-//            $fields['alternativeCurrency'] = $this->getConfigData('currency');
-//            $fields['alternativeAmount'] = $this->getConfigData('currency');
-        }
 
         $cartItems = $order->getAllVisibleItems();
 
         $productNames = array();
         $productQty = array();
         $productPrices = array();
+        /** @var Mage_Sales_Model_Order_Item $_item */
         foreach ($cartItems as $_item) {
             $productNames[] = $_item->getName();
-            $productPrices[] = round($_item->getPrice(), 2);
+            $productPrices[] = round($_item->getData($productPriceField), 2);
             $productQty[] = (int)$_item->getQtyOrdered();
         }
         $fields['productName'] = $productNames;
@@ -64,7 +85,7 @@ class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstra
         /**
          * Check phone
          */
-        $phone = str_replace(array('+', ' ', '(', ')'), array('', '', '', ''), $order->getBillingAddress()->getTelephone());
+        $phone = str_replace(array('+', ' ', '(', ')'), '', $order->getBillingAddress()->getTelephone());
         if (strlen($phone) == 10) {
             $phone = '38' . $phone;
         } elseif (strlen($phone) == 11) {
@@ -92,6 +113,13 @@ class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstra
         return Mage::getUrl('WayForPay/redirect/return');
     }
 
+    protected function _getServiceUrl()
+    {
+        return $this->getConfigData('serviceUrl')
+            ? $this->getConfigData('serviceUrl')
+            : Mage::getUrl('WayForPay/response');
+    }
+
     /**
      * @return string
      */
@@ -108,4 +136,3 @@ class WayForPay_Payment_Model_WayForPay extends Mage_Payment_Model_Method_Abstra
     }
 
 }
-
