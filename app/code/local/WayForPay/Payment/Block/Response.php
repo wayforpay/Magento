@@ -5,30 +5,51 @@
 
 class WayForPay_Payment_Block_Response extends Mage_Core_Block_Abstract
 {
-
     /**
-     * @return bool
-     * @throws Exception
+     * @return false|mixed
      */
     protected function _toHtml()
     {
-
-        $helper = Mage::helper('wayforpay_payment');
         $model = Mage::getModel('wayforpay_payment/wayForPay');
-        $state = $model->getConfigData('after_pay_status');
         $data = json_decode(file_get_contents("php://input"), true);
+        $orderReference = isset($data['orderReference']) ? $data['orderReference'] : null;
+        $order = $this->loadOrderByReference($orderReference);
 
-        $order = Mage::getModel('sales/order')->loadByIncrementId($data['orderReference']);
         if ($order && $order->getId()) {
-
-            $sign = $helper->getResponseSignature($data);
-            if (!empty($data["merchantSignature"]) && $data["merchantSignature"] == $sign) {
-                if($data['transactionStatus'] == 'Approved') {
-                    $order->setStatus($state);
-                    $order->save();
-                }
-                return $helper->getAnswerToGateWay($order);
-            }
+            return $this->processOrder($order, $data, $model->getConfigData('after_pay_status'));
         }
+
+        return false;
+    }
+
+    /**
+     * @param $orderReference
+     * @return mixed
+     */
+    protected function loadOrderByReference($orderReference)
+    {
+        return Mage::getModel('sales/order')->loadByIncrementId($orderReference);
+    }
+
+    /**
+     * @param $order
+     * @param $data
+     * @param $state
+     * @return false|mixed
+     */
+    protected function processOrder($order, $data, $state)
+    {
+        $helper = Mage::helper('wayforpay_payment');
+        $sign = $helper->getResponseSignature($data);
+
+        if (!empty($data["merchantSignature"]) && $data["merchantSignature"] == $sign) {
+            if ($data['transactionStatus'] == 'Approved') {
+                $order->setStatus($state);
+                $order->save();
+            }
+            return $helper->getAnswerToGateWay($order);
+        }
+
+        return false;
     }
 }
